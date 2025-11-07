@@ -43,7 +43,7 @@ project/
 Ensure you have **Python 3.11+** installed. Then install required packages:
 
 ```bash
-pip install google-auth-oauthlib google-api-python-client groq beautifulsoup4 requests python-docx docx2pdf
+pip install google-auth-oauthlib google-api-python-client groq beautifulsoup4 requests python-docx
 ```
 
 **For PDF conversion:**
