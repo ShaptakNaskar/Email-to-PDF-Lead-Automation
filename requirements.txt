@@ -1,8 +1,25 @@
-google-auth
-google-auth-oauthlib
-google-api-python-client
-groq
-beautifulsoup4
-requests
-python-docx
-docx2pdf
+# ============================================================================
+# PYTHON DEPENDENCIES
+# ============================================================================
+# All required packages for the Email Processing Pipeline
+#
+# Installation: pip install -r requirements.txt
+# ============================================================================
+
+# Google Gmail API
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+google-api-python-client==2.107.0
+
+# AI & LLM
+groq==0.9.0
+
+# Document Processing
+python-docx==1.0.1
+
+# Web Scraping & Parsing
+beautifulsoup4==4.12.3
+requests==2.32.3
+
+# Optional: For Windows users with specific needs
+colorama==0.4.6

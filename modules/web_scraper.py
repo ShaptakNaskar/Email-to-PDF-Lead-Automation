@@ -1,12 +1,18 @@
-import requests
+# ============================================================================
+# MODULE: WEB SCRAPER
+# ============================================================================
+# Handles website content fetching and cleaning
+# ============================================================================
+
+import os
 import re
+import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-
-MASTER_LOG = "master_log.txt"
+from config import SCRAPED_DIR, MASTER_LOG
 
 def log_message(message: str, log_file: str = MASTER_LOG):
-    """Log to both console and file with timestamp."""
+    """Log to console and file with timestamp."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = f"[{timestamp}] {message}\n"
     print(message)
@@ -15,18 +21,21 @@ def log_message(message: str, log_file: str = MASTER_LOG):
 
 def sanitize_filename(name):
     """Make filenames safe for all OS."""
-    return re.sub(r'[\\/*?:"<>|]', "_", name)
+    return re.sub(r'[\\/\*?:"<>|]', "_", name)
 
 def fetch_website_content(url):
     """Fetch website content politely."""
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; ElegantScraper/1.0)"}
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; ScraperBot/1.0)"}
+    
     try:
         response = requests.get(url, headers=headers, timeout=10)
+        
         if response.status_code == 200:
             return response.text
         else:
             log_message(f"⚠️ Could not fetch {url} — HTTP {response.status_code}")
             return None
+    
     except Exception as e:
         log_message(f"❌ Error fetching {url}: {e}")
         return None

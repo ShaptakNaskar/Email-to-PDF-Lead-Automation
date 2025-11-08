@@ -1,387 +1,372 @@
-# Modular Email Processing Pipeline - Documentation
+# Automated Email Processing Pipeline
+
+A professional-grade, modular Python application for automated email monitoring, website content analysis, and personalized document generation using AI-powered insights.
 
 ## Overview
 
-This is a **modular, flexible email processing system** designed to help businesses generate personalized brochures and send them to qualified leads. The system automatically fetches emails, validates them, scrapes company websites, generates personalized PDFs using AI, and sends replies with attachments.
+This system monitors an email inbox for incoming messages, validates and filters content, scrapes associated websites, generates AI-driven summaries and personalized recommendations, and automatically sends tailored responses with generated documents.
 
-**Key improvements:**
-- ✅ Fully modularized architecture (each function in separate scripts)
-- ✅ Company name fetched from user input (no hardcoding)
-- ✅ Email address fetched from user input
-- ✅ Template cleaned of all hardcoded references
-- ✅ Flexible and extensible for custom workflows
+**Key Features:**
 
----
+- Automated email monitoring with configurable polling intervals
+- Intelligent system email detection and filtering
+- Website content scraping and analysis
+- AI-powered summarization and content generation (powered by Groq LLaMA)
+- Automated personalized document generation (DOCX to PDF conversion)
+- Email reply automation with attachment handling
+- Telegram notification support with message buffering
+- Comprehensive logging and audit trails
+- CSV-based lead management and tracking
 
-## File Structure
+## Prerequisites
 
-```
-project/
-├── gmail_auth.py              # One-time Gmail OAuth authentication
-├── email_listener.py          # Main orchestrator (entry point)
-├── email_fetcher.py           # Fetch and parse Gmail messages
-├── email_validator.py         # Validate if email qualifies for processing
-├── web_scraper.py             # Scrape website content
-├── ai_processor.py            # Groq AI for summarization & content generation
-├── csv_manager.py             # CSV database management
-├── pdf_generator.py           # Generate personalized PDFs
-├── email_sender.py            # Send reply emails with attachments
-├── template.docx              # Editable brochure template
-├── credentials.json           # Gmail OAuth credentials (download from Google Cloud)
-├── qualified_leads.csv        # Auto-generated leads database
-├── master_log.txt             # Runtime logs
-├── failed_steps.txt           # Error logs
-└── personalised/              # Directory for generated PDFs
-```
+- Python 3.8 or higher
+- Active Gmail account with API access enabled
+- Groq API key (free tier available at https://groq.com)
+- LibreOffice or Microsoft Office for DOCX-to-PDF conversion
+- Telegram bot (optional, for real-time notifications)
 
----
+## Installation
 
-## Setup Instructions
-
-### 1. Install Python and Dependencies
-
-Ensure you have **Python 3.11+** installed. Then install required packages:
+### Step 1: Clone or Download the Project
 
 ```bash
-pip install google-auth-oauthlib google-api-python-client groq beautifulsoup4 requests python-docx
+git clone <repository-url>
+cd email-processing-pipeline
 ```
 
-**For PDF conversion:**
-- Install **LibreOffice** (recommended): https://www.libreoffice.org/download/
-- Or install `docx2pdf`: `pip install docx2pdf` (requires MS Word)
+### Step 2: Create Virtual Environment (Recommended)
 
-### 2. Get Gmail OAuth Credentials
+```bash
+python -m venv venv
+```
 
-1. Go to **https://console.cloud.google.com**
+**Activate the virtual environment:**
+
+**On Windows:**
+```bash
+venv\Scripts\activate
+```
+
+**On macOS/Linux:**
+```bash
+source venv/bin/activate
+```
+
+### Step 3: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+This installs all required packages:
+- `google-auth-oauthlib` - Gmail API authentication
+- `google-auth-httplib2` - Google authentication
+- `google-api-python-client` - Gmail API client
+- `python-docx` - Word document manipulation
+- `beautifulsoup4` - HTML parsing
+- `requests` - HTTP requests
+- `groq` - Groq API client
+
+## Configuration
+
+### Step 1: Set Up Gmail API Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project
-3. Enable **Gmail API**
-4. Create **OAuth 2.0 Desktop App credentials**
-5. Download the JSON file and save as `credentials.json` in your project directory
+3. Enable the Gmail API
+4. Create OAuth 2.0 credentials (Desktop application)
+5. Download the credentials JSON file
+6. Save it as `credentials.json` in your project root directory
 
-### 3. Run Gmail Authentication (One-Time)
+**Important:** Keep `credentials.json` secure and never commit it to version control.
+
+### Step 2: Obtain Groq API Key
+
+1. Visit [Groq Console](https://console.groq.com/keys)
+2. Create a new API key
+3. The key will be requested at runtime (not stored permanently)
+
+### Step 3: Configure Telegram (Optional)
+
+For Telegram notifications:
+
+1. Chat with [@BotFather](https://t.me/botfather) on Telegram
+2. Use `/newbot` command and follow prompts
+3. Copy your BOT_TOKEN
+4. Chat with [@userinfobot](https://t.me/userinfobot) to get your USER_ID
+5. Update configuration in `config.py`
+
+### Step 4: Customize Template and Configuration
+
+1. Edit `template.docx` with your company branding and messaging
+2. Update `config.py` with your business details, keywords, and system email filters
+
+## Running the Application
+
+### Initial Setup: Gmail Authentication
+
+Before running the main script, authenticate with Gmail:
 
 ```bash
 python gmail_auth.py
 ```
 
 This will:
-- Open a browser for OAuth login
-- Generate `token.pickle` (authentication token)
-- Store it for future use
+- Open your browser for OAuth authorization
+- Create and save `token.pickle` securely
+- Log the process to `master_log.txt`
 
----
+**This only needs to be done once.** The token will be reused in subsequent runs.
 
-## Usage
-
-### Running the Application
+### Run the Main Application
 
 ```bash
-python email_listener.py
+python main.py
 ```
 
-On startup, you'll be prompted for:
+The application will:
+1. Request your Groq API key (entered interactively, not saved)
+2. Start monitoring your email inbox
+3. Process incoming emails every 15 seconds
+4. Log all activity to console and log files
+5. Send Telegram notifications (if configured)
 
-1. **Your Company Name**: The name of your business (used in emails and PDFs)
-2. **Your Email Address**: Your email for replies
-3. **Groq API Key**: Your API key from https://console.groq.com
+**To stop the application:** Press `Ctrl+C` to exit gracefully
 
-**Example:**
+## Project Structure
+
 ```
-📝 Enter your company name: Mindedge Solutions
-📧 Enter your email address: contact@mindedge.com
-🔑 Enter your Groq API key for this session: gsk_xxx...
+email-processing-pipeline/
+├── README.md                    # This file
+├── LICENSE                      # Apache 2.0 License
+├── requirements.txt             # Python dependencies
+├── config.py                    # Configuration and constants
+├── main.py                      # Application entry point
+├── gmail_auth.py                # Gmail OAuth authentication
+├── modules/
+│   ├── __init__.py
+│   ├── email_handler.py         # Email fetching and validation
+│   ├── web_scraper.py           # Website scraping utilities
+│   ├── ai_processor.py          # Groq API integration
+│   ├── document_generator.py    # PDF generation
+│   ├── telegram_notifier.py     # Telegram messaging
+│   └── csv_manager.py           # Lead database management
+├── template.docx                # Customizable document template
+├── credentials.json             # (Create) Gmail API credentials
+├── token.pickle                 # (Auto-created) Gmail session token
+├── qualified_leads.csv          # (Auto-created) Lead database
+├── master_log.txt               # (Auto-created) Activity log
+├── failed_steps.txt             # (Auto-created) Error log
+├── scraped_sites/               # (Auto-created) Cached website content
+└── personalised/                # (Auto-created) Generated documents
 ```
 
-The system will then:
-- Check for new emails every 15 seconds
-- Validate emails (filters system emails, checks for brochure keywords)
-- Scrape prospect websites
-- Summarize website content using Groq AI
-- Generate personalized blurbs
-- Create custom PDFs
-- Send replies with attachments
-- Log all activities
+## Configuration Details
 
----
+Edit `config.py` to customize:
 
-## Configuration
+- **Email monitoring:** Polling intervals and keywords
+- **Filtering:** System email domains and keywords to ignore
+- **Telegram:** Bot token and user ID (optional)
+- **Groq AI:** Model selection and prompt templates
+- **File paths:** Output directories and naming conventions
 
-All modules respect these configurable values:
+### Example Configuration Changes
 
-**In `email_listener.py`:**
+**Change email fetch interval:**
 ```python
-EMAIL_FETCH_INTERVAL = 15  # Seconds between email checks
-PERSONALISED_DIR = "personalised"  # Output directory for PDFs
+EMAIL_FETCH_INTERVAL = 30  # Check every 30 seconds instead of 15
 ```
 
-**In `ai_processor.py`:**
-```python
-GROQ_MODEL = "llama-3.1-8b-instant"  # AI model for content generation
-```
-
-**In other modules:**
-- `MASTER_LOG` - File for runtime logs
-- `FAILED_LOG` - File for error logs
-- `OUTPUT_CSV` - Leads database filename
-
----
-
-## Customizing the Template
-
-Edit `template.docx` with Microsoft Word or LibreOffice:
-
-1. **Placeholders to customize:**
-   - `(Name)` → Prospect's name (auto-filled)
-   - `(company name)` → Prospect's company (auto-filled)
-   - `(what your company deals with)` → Auto-filled with Groq AI summary
-   - `Input Blurbs here` → Auto-filled with personalized service descriptions
-
-2. **Edit static content:**
-   - Company background and services
-   - Pricing information
-   - Contact information
-   - Call-to-action sections
-
-3. **Keep the structure:**
-   - Ensure the `Input Blurbs here` text appears 5 times (once per service)
-   - Don't rename the placeholders
-
----
-
-## Module Reference
-
-### `gmail_auth.py`
-Handles Gmail OAuth authentication. Run once to generate `token.pickle`.
-
-**Key Function:**
-- `authenticate_gmail()` - Returns Gmail service object
-
-### `email_listener.py`
-Main orchestrator that coordinates all modules and runs the infinite loop.
-
-**Key Functions:**
-- `main_loop()` - Infinite loop checking for new emails
-- `process_incoming_email()` - Handles each qualified email
-- `get_company_name_from_user()` - Gets company name input
-- `get_sender_email_from_user()` - Gets sender email input
-
-### `email_fetcher.py`
-Fetches and parses emails from Gmail.
-
-**Key Functions:**
-- `fetch_latest_email(service)` - Fetches newest email
-- `extract_message_data(message)` - Parses email content
-
-### `email_validator.py`
-Validates if emails qualify for processing.
-
-**Key Functions:**
-- `validate_email()` - Checks for keywords, system emails, websites
-- `is_system_email()` - Filters automated/system emails
-- `contains_keywords()` - Detects brochure-related keywords
-
-### `web_scraper.py`
-Scrapes website content for AI processing.
-
-**Key Functions:**
-- `scrape_website(url)` - Downloads and cleans website text
-- `fetch_website_content(url)` - HTTP request with error handling
-
-### `ai_processor.py`
-Uses Groq AI for content generation and summarization.
-
-**Key Functions:**
-- `summarize_with_groq()` - Creates 5-6 sentence website summary
-- `call_groq()` - Generic Groq API call
-- `extract_blurbs()` - Parses numbered service descriptions
-- `test_groq_connection()` - Validates API key
-
-### `csv_manager.py`
-Manages the leads database (CSV file).
-
-**Key Functions:**
-- `init_csv()` - Creates CSV with proper headers
-- `add_or_update_lead()` - Adds new prospects
-- `mark_as_done()` - Marks emails as processed
-- `get_processed_message_ids()` - Retrieves already-processed emails
-
-### `pdf_generator.py`
-Generates personalized PDFs from the template.
-
-**Key Functions:**
-- `generate_pdf()` - Main PDF generation workflow
-- `convert_docx_to_pdf()` - Handles DOCX → PDF conversion
-- `replace_single_placeholder()` - Replaces template variables
-- `replace_blurbs()` - Inserts AI-generated service descriptions
-
-### `email_sender.py`
-Creates and sends reply emails with PDF attachments.
-
-**Key Functions:**
-- `create_email_body()` - Generates personalized email text
-- `create_reply_message_with_attachment()` - Builds MIME email
-- `send_reply_email()` - Sends via Gmail API
-
----
-
-## Workflow Example
-
-**Input Email:**
-```
-From: John Smith <john@acmecorp.com>
-Subject: Looking for a brochure on your services
-Body: Hi, I'm interested in your workflow optimization services...
-```
-
-**System Processing:**
-1. ✅ Validates email (has keywords, real person)
-2. 🌐 Scrapes acmecorp.com
-3. 📝 Generates summary: "ACME Corp provides digital marketing solutions..."
-4. 🤖 Groq AI extracts company name: "ACME Corp"
-5. 💭 Groq AI generates personalized service descriptions
-6. 📄 Creates PDF: `ACME_Corp_a1b2c3d4.pdf`
-7. 📧 Sends reply with attachment
-8. ✅ Marks in CSV as "Done"
-
-**Output CSV Entry:**
-```
-Message_ID,Name,Email,Website,Summary,PDF,Done
-a1b2c3d4,John Smith,john@acmecorp.com,acmecorp.com,"ACME Corp provides...",ACME_Corp_a1b2c3d4.pdf,Yes
-```
-
----
-
-## Error Handling
-
-### Common Issues
-
-**"token.pickle not found"**
-- Solution: Run `python gmail_auth.py` first
-
-**"credentials.json not found"**
-- Solution: Download OAuth credentials from Google Cloud Console
-
-**"Neither LibreOffice nor docx2pdf is available"**
-- Solution: Install LibreOffice or: `pip install docx2pdf` (requires MS Word)
-
-**"Groq API connection failed"**
-- Solution: Check API key, ensure internet connection, verify Groq status at https://status.groq.com
-
-### Logs
-
-- **`master_log.txt`** - All operations logged with timestamps
-- **`failed_steps.txt`** - Errors and failures logged separately
-
-Check these files for troubleshooting.
-
----
-
-## Extending the System
-
-### Adding Custom Email Validation
-
-Edit `email_validator.py`:
+**Add custom keywords:**
 ```python
 KEYWORDS = [
-    "brochure", "your_keyword", ...
+    "brochure", "catalog", "proposal",  # Default
+    "custom_keyword_1", "custom_keyword_2"  # Your additions
 ]
 ```
 
-### Changing AI Model
-
-Edit `ai_processor.py`:
+**Update system email filters:**
 ```python
-GROQ_MODEL = "llama-2-70b-chat"  # Different model
+SYSTEM_EMAIL_DOMAINS = [
+    # Default domains
+    ...
+    "your_domain_to_ignore.com"  # Add custom domains
+]
 ```
 
-### Custom Email Templates
+## Customizing the Template Document
 
-Replace `template.docx` with your own Word document, keeping the placeholders:
-- `(Name)`
-- `(company name)`
-- `(what your company deals with)`
-- `Input Blurbs here` (5 times)
+The `template.docx` file contains placeholders that are automatically replaced:
 
-### Scheduled Execution
+- `(Name)` → Recipient name
+- `(company name)` → Extracted company name
+- `(what your company deals with)` → AI-generated company description
+- Numbered sections (1-5) → AI-generated personalized blurbs
 
-Use system schedulers to run the script:
+**To customize:**
 
-**Windows (Task Scheduler):**
+1. Open `template.docx` in Microsoft Word or LibreOffice
+2. Modify branding, colors, fonts, and layout
+3. Keep the placeholder text exactly as shown (case-sensitive)
+4. Save and test with a sample email
+
+## How It Works
+
+### Email Processing Pipeline
+
+1. **Fetch Email** → Poll Gmail inbox for new messages
+2. **Validate** → Check sender, subject, and content for relevance
+3. **Filter** → Reject system emails (no-reply, OAuth, etc.)
+4. **Extract** → Parse sender name, email, and website references
+5. **Scrape** → Fetch and clean website HTML content
+6. **Summarize** → Generate AI summary using Groq API
+7. **Personalize** → Extract company info and generate service blurbs
+8. **Generate** → Create DOCX from template with personalized content
+9. **Convert** → Convert DOCX to PDF
+10. **Send** → Email PDF reply to sender and/or notify via Telegram
+11. **Track** → Record lead status in CSV database
+
+### Example Workflow
+
+**Incoming Email:**
 ```
-Program: C:\Users\Sappy\AppData\Local\Programs\Python\Python311\python.exe
-Arguments: C:\path\to\email_listener.py
+From: John Smith <john@acmecorp.com>
+Subject: Looking for brochure on your services
+Body: We saw your portfolio and are interested in learning more...
 ```
 
-**Linux/Mac (cron):**
+**Processing:**
+- Validates as legitimate (contains keyword "brochure")
+- Scrapes acmecorp.com for company information
+- AI generates: company description, personalized service recommendations
+- Creates personalized PDF with your template + AI content
+- Sends PDF reply to john@acmecorp.com
+- Records in `qualified_leads.csv` with status "Done"
+
+## Logging
+
+The application generates three log files:
+
+- **master_log.txt** → Complete activity log with timestamps
+- **failed_steps.txt** → Errors and failures for debugging
+- **qualified_leads.csv** → Database of processed leads
+
+View logs in real-time:
+
+**On Windows:**
 ```bash
-0 9 * * * /usr/bin/python3 /path/to/email_listener.py
+type master_log.txt
 ```
 
----
-
-## Security Notes
-
-1. **API Keys**: Never hardcode Groq/Gmail keys - they're prompted at runtime
-2. **Credentials**: `token.pickle` and `credentials.json` are sensitive - keep them private
-3. **Logs**: Review logs for sensitive information before sharing
-4. **Email**: Don't share email addresses in logs/reports
-
----
-
-## Performance Tips
-
-1. Increase `EMAIL_FETCH_INTERVAL` if you're rate-limited by Gmail API
-2. Reduce timeout values in `web_scraper.py` for faster processing
-3. Use `--onefile` option when packaging as EXE for faster startup
-4. Monitor Groq API usage - consider rate limits
-
----
-
-## Packaging as .EXE
-
-To distribute this as a standalone Windows executable:
-
+**On macOS/Linux:**
 ```bash
-C:\Users\Sappy\AppData\Local\Programs\Python\Python311\python.exe -m PyInstaller --onefile --console ^
-  --hidden-import=groq ^
-  --hidden-import=google.auth ^
-  --hidden-import=google.auth.transport.requests ^
-  --hidden-import=google.oauth2.credentials ^
-  --hidden-import=google_auth_oauthlib.flow ^
-  --hidden-import=googleapiclient.discovery ^
-  --hidden-import=bs4 ^
-  --hidden-import=docx ^
-  email_listener.py
+tail -f master_log.txt
 ```
 
-The `.exe` will be in the `dist/` folder.
+## Troubleshooting
 
----
+### "credentials.json not found"
+**Solution:** Download from Google Cloud Console and place in project root.
 
-## Support
+### "Token invalid or expired"
+**Solution:** Delete `token.pickle` and run `python gmail_auth.py` again.
 
-For issues or questions:
-1. Check logs in `master_log.txt` and `failed_steps.txt`
-2. Verify API credentials (Gmail, Groq)
-3. Ensure all dependencies are installed: `pip list`
-4. Test individual modules separately for debugging
+### "Groq API error"
+**Solution:** Verify API key is correct. Visit https://console.groq.com/keys to check.
 
----
+### "DOCX to PDF conversion failed"
+**Solution:** Ensure LibreOffice is installed and in system PATH.
+
+**Installation:**
+- **Windows:** Download from libreoffice.org or install via `choco install libreoffice`
+- **macOS:** `brew install libreoffice`
+- **Linux:** `sudo apt-get install libreoffice`
+
+### "No emails being processed"
+**Solution:** Check:
+1. Email arrives in INBOX (not other labels)
+2. Keywords in config.py match your incoming emails
+3. Gmail authentication is valid
+4. Check `master_log.txt` for specific errors
+
+## Important Notes
+
+### Security
+
+- Never commit `credentials.json` or `token.pickle` to version control
+- The Groq API key is requested at runtime and never stored
+- Use `.gitignore` to exclude sensitive files:
+
+```
+credentials.json
+token.pickle
+qualified_leads.csv
+master_log.txt
+failed_steps.txt
+scraped_sites/
+personalised/
+```
+
+### Privacy & Compliance
+
+- Ensure you have permission to send automated emails to recipients
+- Comply with GDPR, CAN-SPAM, and local email regulations
+- Use appropriate "From" headers and unsubscribe mechanisms
+- Store lead data securely and comply with data protection laws
+
+### Rate Limiting
+
+- Gmail API: 100,000 requests/day (sufficient for most use cases)
+- Groq API: Free tier has fair-use limits (implement delays if needed)
+- Website scraping: Respects rate limits and uses `robots.txt`
+
+## Advanced Features
+
+### Custom Prompt Templates
+
+Edit prompts in `config.py` to change AI behavior:
+
+```python
+GENERATE_BLURBS_PROMPT = """
+Customize this prompt to control how AI generates recommendations...
+"""
+```
+
+### Batch Processing
+
+To process multiple emails manually:
+
+```python
+# Edit main.py to modify polling interval
+EMAIL_FETCH_INTERVAL = 1  # Process every 1 second
+```
+
+### Telegram Batch Notifications
+
+Messages are automatically buffered and sent every 15 seconds to reduce API calls.
 
 ## License
 
-This system is provided under Apache License 2.0.
----
+This project is licensed under the **Apache License 2.0**. See `LICENSE` file for details.
+
+You are free to use, modify, and distribute this software with attribution.
+
+## Support & Contributing
+
+For issues, feature requests, or contributions, please refer to the project repository.
 
 ## Changelog
 
-**v2.0 - Modular Release**
-- ✅ Split monolithic script into 9 focused modules
-- ✅ Removed hardcoded "Sappy's Enclove" references
-- ✅ Added user input for company name and email
-- ✅ Updated template with generic placeholders
-- ✅ Improved error handling and logging
-- ✅ Enhanced documentation
+### Version 1.0.0
+- Initial release
+- Modular architecture
+- Professional logging
+- Groq AI integration
+- Telegram notifications
+- CSV lead management
 
-**v1.0 - Original Release**
-- Initial working version (monolithic)
+---
+
+**Built for professionals. Optimized for scale.**
