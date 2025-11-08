@@ -31,7 +31,7 @@ This system monitors an email inbox for incoming messages, validates and filters
 ### Step 1: Clone or Download the Project
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ShaptakNaskar/Email-to-PDF-Lead-Automation
 cd email-processing-pipeline
 ```
 
